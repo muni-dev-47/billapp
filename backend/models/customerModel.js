@@ -1,0 +1,32 @@
+const mongoose = require('mongoose');
+
+const customerSchema = new mongoose.Schema({
+    id: {
+        type: Number,
+        required: true,
+        unique: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    mobile: {
+        type: String,
+        required: true,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
+    shopName: {
+        type: String,
+        required: true,
+    },
+    balance: {
+        type: Number,
+        required: true,
+        default: 0,
+    }
+});
+
+module.exports = mongoose.model('Customer', customerSchema);
