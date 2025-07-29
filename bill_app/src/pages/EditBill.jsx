@@ -67,7 +67,7 @@ const EditBill = () => {
 
     const handleEditSales = () => {
         if (billItems?.length !== 0) {
-            dispatch(updateSales({ id, billItems, billId }));
+            // dispatch(updateSales({ id, billItems, billId }));
             dispatch(updateCustomerBill({ id, invoiceId: billId, billItems, date }));
         }
         navigate("/customerDetails")
@@ -86,10 +86,9 @@ const EditBill = () => {
         const newErrors = {};
         console.log(editFormData)
         if (!editFormData?.itemName?.trim()) newErrors.itemName = 'Customer name is required';
-        if (!editFormData?.itemPrice?.trim()) newErrors.itemPrice = 'Mobile number is required';
-        if (!editFormData?.itemCount?.trim()) newErrors.itemCount = 'Mobile number is required';
+        if (!editFormData?.itemPrice?.trim() || Number(editFormData?.itemPrice) <= 0) newErrors.itemPrice = 'Mobile number is required';
+        if (!editFormData?.itemCount?.trim() || Number(editFormData?.itemCount) <= 0) newErrors.itemCount = 'Mobile number is required';
         setEditErrors(newErrors);
-        console.log(newErrors)
         return Object.keys(newErrors).length === 0;
     }
 

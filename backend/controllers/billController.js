@@ -61,8 +61,8 @@ const addCustomerBill = async (req, res) => {
             amount: totalAmount,
             date,
             type: 'debit',
-            description: 'Customer payment',
-            category: 'Payment'
+            description: 'Sales payment',
+            category: 'Sales'
         };
 
         if (transaction) {
@@ -153,33 +153,54 @@ const updateCustomerBill = async (req, res) => {
     }
 };
 
-
 const deleteCustomerBill = async (req, res) => {
     try {
         const { id, invoiceId } = req.params;
 
-        const customer = await CustomerBill.findOne({ id });
-
-        if (!customer) {
-            return res.status(404).json({ message: 'Customer not found' });
+        const customerBill = await CustomerBill.findOne({ id });
+        if (!customerBill) {
+            return res.status(404).json({ message: 'Customer bill not found' });
         }
 
-        const originalLength = customer.bills.length;
-
-        customer.bills = customer.bills.filter(bill => bill.invoiceId !== invoiceId);
-
-        if (customer.bills.length === originalLength) {
+        const billToDelete = customerBill.bills.find(bill => bill.invoiceId === invoiceId);
+        if (!billToDelete) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
 
-        await customer.save();
-        res.json({ message: 'Bill deleted successfully', customer });
+        const totalToSubtract = billToDelete.billItems.reduce(
+            (sum, item) => sum + item.itemCount * item.itemPrice,
+            0
+        );
+
+        const billDate = billToDelete.date;
+        customerBill.bills = customerBill.bills.filter(bill => bill.invoiceId !== invoiceId);
+        await customerBill.save();
+
+        const customer = await Customer.findOne({ id });
+        if (customer) {
+            customer.balance = customer.balance - totalToSubtract;
+            await customer.save();
+        }
+
+        const transactionHistory = await CustomerTransaction.findOne({ id });
+        if (transactionHistory) {
+            transactionHistory.history = transactionHistory.history.filter(
+                txn => txn.date !== billDate
+            );
+            await transactionHistory.save();
+        }
+
+        res.json({
+            message: 'Bill deleted, customer balance updated, and transaction removed successfully',
+            customerBill,
+        });
 
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 module.exports = {
     addCustomerBill,

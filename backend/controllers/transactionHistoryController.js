@@ -53,7 +53,27 @@ const getTransactionHistory = async (req, res) => {
     }
 };
 
+const getCustomerTransactionHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const customerHistory = await CustomerTransactionHistory.findOne({ id });
+
+        if (!customerHistory) {
+            return res.status(404).json({ message: 'No transaction history found for this customer' });
+        }
+
+        res.json({ history: customerHistory.history });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 module.exports = {
+    getCustomerTransactionHistory,
     addTransactionHistory,
     getTransactionHistory
 };

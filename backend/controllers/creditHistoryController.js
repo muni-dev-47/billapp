@@ -38,8 +38,8 @@ const addCreditHistory = async (req, res) => {
             amount,
             date: new Date(date),
             type: 'credit',
-            description: 'Sales payment',
-            category: 'Sales'
+            description: 'Customer payment',
+            category: 'Payment'
         };
 
         if (txn) {

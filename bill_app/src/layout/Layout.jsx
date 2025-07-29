@@ -24,8 +24,8 @@ const Layout = () => {
 
             }
         }
-        fetchData();
-    }, [])
+        if (window.location.pathname === "/transactionHistory" || window.location.pathname === "/home") { fetchData(); }
+    }, [window.location.pathname])
 
     return (
         <div className="d-flex">

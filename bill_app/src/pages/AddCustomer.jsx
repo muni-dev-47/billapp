@@ -27,7 +27,7 @@ const AddCustomer = () => {
         e.preventDefault();
         if (validateForm()) {
             if (!location.state) {
-                dispatch(addNewCustomer({ id: Date.now(), ...formData, balance: 0 }))
+                // dispatch(addNewCustomer({ id: Date.now(), ...formData, balance: 0 }))
                 dispatch(addCustomer({ id: Date.now(), ...formData, balance: 0 }))
             }
             else {
@@ -45,7 +45,9 @@ const AddCustomer = () => {
         if (!formData?.mobile?.trim()) newErrors.mobile = 'Mobile number is required';
         if (!formData?.shopName?.trim()) newErrors.shopName = 'shopName number is required';
         if (!formData?.address?.trim()) newErrors.address = 'address number is required';
-        else if (!/^\d{10}$/.test(formData?.mobile)) newErrors.mobile = 'Invalid mobile number';
+        else if (!/^[6-9]\d{9}$/.test(formData?.mobile)) {
+            newErrors.mobile = 'Invalid mobile number';
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

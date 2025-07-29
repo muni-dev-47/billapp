@@ -216,7 +216,6 @@ const CreditHistory = () => {
     return (
         <div className="container-fluid py-3 px-2 px-sm-3">
             <div className="card shadow-lg border-0 overflow-hidden">
-                {/* Card Header */}
                 <div className="card-header bg-gradient-primary text-dark p-3 p-sm-4">
                     <div className="d-flex justify-content-between align-items-center">
                         <div>

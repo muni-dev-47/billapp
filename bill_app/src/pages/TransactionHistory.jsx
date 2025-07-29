@@ -356,11 +356,11 @@ const TransactionHistory = () => {
     const history = transactionHistory.find(val => val.id === id)?.history || [];
 
     const totalSales = history
-        .filter(item => item?.type === 'credit' && item?.category === 'Sales')
+        .filter(item => item?.type === 'credit' && item?.category === 'Payment')
         .reduce((sum, item) => sum + (item?.amount || 0), 0);
 
     const totalCustomerPayments = history
-        .filter(item => item?.type === 'debit' && item?.category === 'Payment')
+        .filter(item => item?.type === 'debit' && item?.category === 'Sales')
         .reduce((sum, item) => sum + (item?.amount || 0), 0);
 
     const [filter, setFilter] = useState('all');
@@ -441,10 +441,11 @@ const TransactionHistory = () => {
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex align-items-center">
                                         <div className="bg-success bg-opacity-10 p-2 p-sm-3 rounded me-2 me-sm-3">
-                                            <i className="bi bi-cart-check fs-4 fs-sm-3 text-success"></i>
+                                            <i className="bi bi-cash-coin fs-4 fs-sm-3 text-success"></i>
                                         </div>
+
                                         <div>
-                                            <h6 className="mb-1 text-muted small">Total Sales</h6>
+                                            <h6 className="mb-1 text-muted small">Customer Payments</h6>
                                             <h4 className="mb-0 text-success fw-bold fs-5 fs-sm-4">
                                                 ₹{totalSales?.toLocaleString('en-IN') || '0'}
                                             </h4>
@@ -456,8 +457,9 @@ const TransactionHistory = () => {
                                 </div>
                                 <hr className="my-2" />
                                 <small className="text-muted">
-                                    <i className="bi bi-info-circle me-1"></i> Product sales
+                                    <i className="bi bi-info-circle me-1"></i> Payments received
                                 </small>
+
                             </div>
                         </div>
                     </div>
@@ -467,10 +469,10 @@ const TransactionHistory = () => {
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex align-items-center">
                                         <div className="bg-danger bg-opacity-10 p-2 p-sm-3 rounded me-2 me-sm-3">
-                                            <i className="bi bi-cash-coin fs-4 fs-sm-3 text-danger"></i>
+                                            <i className="bi bi-cart-check fs-4 fs-sm-3 text-danger"></i>
                                         </div>
                                         <div>
-                                            <h6 className="mb-1 text-muted small">Customer Payments</h6>
+                                            <h6 className="mb-1 text-muted small">Total Sales</h6>
                                             <h4 className="mb-0 text-danger fw-bold fs-5 fs-sm-4">
                                                 ₹{totalCustomerPayments?.toLocaleString('en-IN') || '0'}
                                             </h4>
@@ -482,14 +484,13 @@ const TransactionHistory = () => {
                                 </div>
                                 <hr className="my-2" />
                                 <small className="text-muted">
-                                    <i className="bi bi-info-circle me-1"></i> Payments received
+                                    <i className="bi bi-info-circle me-1"></i> Product sales
                                 </small>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Transactions - Desktop View */}
                 <div className="d-none d-md-block px-3 pb-3">
                     <div className="table-responsive rounded-3 border">
                         <table className="table table-hover align-middle mb-0">
@@ -516,7 +517,7 @@ const TransactionHistory = () => {
                                             <td>
                                                 <div className="fw-medium">{item.description || 'No description'}</div>
                                                 <small className={`text-${item.type === 'credit' ? 'success' : 'danger'}`}>
-                                                    <i className={`bi bi-${item.type === 'credit' ? 'cart-check' : 'person-lines-fill'} me-1`}></i>
+                                                    <i className={`bi bi-${item.type === 'debit' ? 'cart-check' : 'person-lines-fill'} me-1`}></i>
                                                     {item.category || 'Transaction'}
                                                 </small>
                                             </td>

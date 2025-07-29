@@ -16,6 +16,7 @@ const Bill = () => {
     const customerContact = "+91 " + location?.state?.mobile ?? "";
     const id = location?.state?.id
     const [errors, setErrors] = useState({});
+    const [editerrors, setEditErrors] = useState({})
 
     const nameRef = useRef();
     const priceRef = useRef();
@@ -41,8 +42,10 @@ const Bill = () => {
     }
 
     const handleSaveItem = (index) => {
-        dispatch(updateBillItem({ index }))
-        setEditingIndex(null)
+        if (validateEditForm()) {
+            dispatch(updateBillItem({ index }))
+            setEditingIndex(null)
+        }
     };
 
     const handleCancelEdit = () => {
@@ -60,7 +63,7 @@ const Bill = () => {
     }
 
     const handleSaveBill = () => {
-        if (billItems?.length !== 0) { dispatch(addSales({ id, billItems, date: new Date().toISOString() })); dispatch(postSalesItem({ id, billItems, date: new Date().toISOString() })) }
+        if (billItems?.length !== 0) { dispatch(postSalesItem({ id, billItems, date: new Date().toISOString() })) }
         navigate("/customerDetails")
     }
 
@@ -72,6 +75,16 @@ const Bill = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
+    const validateEditForm = () => {
+        const newErrors = {};
+        console.log(editFormData)
+        if (!editFormData?.itemName?.trim()) newErrors.itemName = 'Customer name is required';
+        if (!editFormData?.itemPrice?.trim() || Number(editFormData?.itemPrice) <= 0) newErrors.itemPrice = 'Mobile number is required';
+        if (!editFormData?.itemCount?.trim() || Number(editFormData?.itemCount) <= 0) newErrors.itemCount = 'Mobile number is required';
+        setEditErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    }
 
     useEffect(() => {
         return () => dispatch(removeBillItems())
@@ -155,7 +168,7 @@ const Bill = () => {
                                                 <td>
                                                     <input
                                                         type="text"
-                                                        className="form-control"
+                                                        className={`form-control ${editerrors?.itemName ? 'is-invalid' : ""}`}
                                                         name='itemName'
                                                         value={editFormData?.itemName}
                                                         onChange={handleUpdate}
@@ -165,7 +178,7 @@ const Bill = () => {
                                                     <input
                                                         type="number"
                                                         name='itemPrice'
-                                                        className="form-control text-end"
+                                                        className={`form-control text-end ${editerrors?.itemPrice ? 'is-invalid' : ""}`}
                                                         value={editFormData?.itemPrice}
                                                         onChange={handleUpdate}
                                                     />
@@ -174,7 +187,7 @@ const Bill = () => {
                                                     <input
                                                         type="number"
                                                         name='itemCount'
-                                                        className="form-control text-center"
+                                                        className={`form-control text-center ${editerrors?.itemCount ? 'is-invalid' : ""}`}
                                                         value={editFormData?.itemCount}
                                                         onChange={handleUpdate}
                                                     />

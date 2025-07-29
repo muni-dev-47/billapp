@@ -144,18 +144,21 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { fatchBillItems } from '../redux/customerSlice';
+import { deleteBill, deleteCustomerBill, fatchBillItems } from '../redux/customerSlice';
 
 const PurchaseHistory = () => {
     const location = useLocation();
+    const { id } = location?.state;
+    console.log(location.state)
     const customerBills = useSelector(state => state.customer.customerBills);
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const bills = customerBills.find(bill => bill.id === location?.state?.id)?.bills || []
+    const bills = customerBills.find(bill => bill.id === id)?.bills || []
     const purchases = bills?.map(val => ({ id: val.invoiceId, date: val.date, total: val.billItems.reduce((sum, val) => sum + (val.itemPrice * val.itemCount), 0) })) || []
+    console.log(customerBills)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -173,7 +176,7 @@ const PurchaseHistory = () => {
             } catch (err) { }
         }
         fetchBill();
-    }, [location.state])
+    }, [location.state.id])
 
     const filteredPurchases = purchases?.filter(purchase => {
         if (filter === 'month') {
@@ -200,6 +203,13 @@ const PurchaseHistory = () => {
         };
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
+
+    const handleDeleteBill = (id, invoiceId) => {
+        if (window.confirm("Are you sure you want to delete this bill?")) {
+            dispatch(deleteBill({ id, invoiceId }))
+            dispatch(deleteCustomerBill({ id, invoiceId }))
+        }
+    }
 
     if (loading) {
         return (
@@ -269,13 +279,31 @@ const PurchaseHistory = () => {
                                             <td className="text-muted">{formatDate(purchase.date)}</td>
                                             <td className="fw-bold text-indigo-600">₹{purchase.total.toLocaleString()}</td>
                                             <td className="pe-4 text-end">
-                                                <button
-                                                    className="btn btn-sm btn-outline-indigo rounded-pill px-3"
-                                                    onClick={() => navigate("/editBill", { state: { cusId: location?.state?.id, billId: purchase.id, date: purchase.date } })}
-                                                >
-                                                    <i className="bi bi-pencil-square me-1"></i> Edit
-                                                </button>
+                                                <div className="d-flex justify-content-end gap-2">
+                                                    <button
+                                                        className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                        onClick={() => handleDeleteBill(id, purchase.id)}
+                                                    >
+                                                        <i className="bi bi-trash me-1"></i> Delete
+                                                    </button>
+
+                                                    <button
+                                                        className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                        onClick={() =>
+                                                            navigate("/editBill", {
+                                                                state: {
+                                                                    cusId: id,
+                                                                    billId: purchase.id,
+                                                                    date: purchase.date,
+                                                                },
+                                                            })
+                                                        }
+                                                    >
+                                                        <i className="bi bi-pencil-square me-1"></i> Edit
+                                                    </button>
+                                                </div>
                                             </td>
+
                                         </tr>
                                     ))
                                 ) : (
@@ -306,14 +334,30 @@ const PurchaseHistory = () => {
                                                 ₹{purchase.total.toLocaleString()}
                                             </span>
                                         </div>
-                                        <div className="d-flex justify-content-end">
+                                        <div className="d-flex justify-content-end gap-2">
                                             <button
-                                                className="btn btn-sm btn-outline-indigo rounded-pill px-3"
-                                                onClick={() => navigate("/editBill", { state: { cusId: location?.state?.id, billId: purchase.id, date: purchase.date } })}
+                                                className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                onClick={() => dispatch({ id, invoiceId: purchase.id })}
+                                            >
+                                                <i className="bi bi-trash me-1"></i> Delete
+                                            </button>
+
+                                            <button
+                                                className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                onClick={() =>
+                                                    navigate("/editBill", {
+                                                        state: {
+                                                            cusId: id,
+                                                            billId: purchase.id,
+                                                            date: purchase.date,
+                                                        },
+                                                    })
+                                                }
                                             >
                                                 <i className="bi bi-pencil-square me-1"></i> Edit
                                             </button>
                                         </div>
+
                                     </div>
                                 </div>
                             ))

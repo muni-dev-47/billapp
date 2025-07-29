@@ -93,6 +93,22 @@ export const deleteCustomerById = createAsyncThunk(
     }
 );
 
+
+
+export const deleteCustomerBill = createAsyncThunk(
+    'customerBills/deleteCustomerBill',
+    async ({ id, invoiceId }, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/bill/delete/${id}/${invoiceId}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Failed to delete customer bill'
+            );
+        }
+    }
+);
+
 const initialState = {
     customerDetails: [],
     customerBills: [],
@@ -191,6 +207,12 @@ const customerSlice = createSlice({
                 }
             }
         },
+        deleteBill: (state, action) => {
+            const { id, invoiceId } = action.payload;
+            const index = state.customerBills.findIndex(val => val.id === id);
+            const billIndex = state.customerBills[index].bills.findIndex(val => val.invoiceId === invoiceId);
+            state.customerBills[index].bills.splice(billIndex, 1);
+        },
         deleteCustomer: (state, action) => {
             const { id } = action.payload;
             const cusIndex = state.customerDetails.findIndex(val => val.id === id);
@@ -206,7 +228,10 @@ const customerSlice = createSlice({
             state.customerDetails = [...action.payload]
         },
         fatchBillItems: (state, action) => {
-            state.customerBills.push(action.payload)
+            if (!state.customerBills.some(val => val.id === action.payload.id))
+                state.customerBills.push(action.payload)
+            else
+                state.customerBills[0].bills = action.payload.bills
         },
         fetchCredits: (state, action) => {
             state.customersCreditHistory.push(action.payload);
@@ -217,5 +242,5 @@ const customerSlice = createSlice({
     }
 })
 
-export const { addNewCustomer, fetchTransactions, fetchCredits, fatchBillItems, addSales, updateSales, updateBalance, fetchCustomers } = customerSlice.actions;
+export const { addNewCustomer, deleteBill, fetchTransactions, fetchCredits, fatchBillItems, addSales, updateSales, updateBalance, fetchCustomers } = customerSlice.actions;
 export default customerSlice.reducer;

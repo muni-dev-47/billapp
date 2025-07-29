@@ -40,11 +40,18 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       height: '100vh',
       width: isSidebarOpen ? '210px' : '55px',
       transition: 'width 0.3s ease',
-      zIndex: 1030
+      zIndex: 1030,
     }}>
 
-      <i className="bi bi-list m-2  fs-5" onClick={handleToggle} style={{ cursor: 'pointer' }} ></i>
-
+      <i
+        className={`bi bi-list m-2 fs-5 text-dark ${isSidebarOpen ? 'text-end' : 'text-center'}`}
+        onClick={handleToggle}
+        style={{
+          cursor: 'pointer',
+          transition: 'transform 0.3s ease',
+          transform: isSidebarOpen ? 'rotate(0deg)' : 'rotate(90deg)'
+        }}
+      ></i>
       <ul className="list-group list-group-flush">
         {sidebarData().map((item, index) => (
           <SidebarItem
