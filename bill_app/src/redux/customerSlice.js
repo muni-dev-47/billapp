@@ -18,7 +18,7 @@ export const updateCustomer = createAsyncThunk(
     'customer/updateCustomer',
     async ({ id, name, mobile, address, shopName, balance }, { rejectWithValue }) => {
         try {
-            console.log(id)
+
             const response = await axios.put(`http://localhost:5000/api/customers/update/${id}`, {
                 name,
                 mobile,
@@ -168,70 +168,64 @@ const customerSlice = createSlice({
     name: 'customer',
     initialState,
     reducers: {
-        addNewCustomer: (state, action) => {
-            if (!state.customerDetails.some(val => (val.mobile === action.payload.mobile) && (val.address === action.payload.address)))
-                state.customerDetails = [...state.customerDetails, action.payload];
-        },
-        updateCustomer: (state, action) => {
-            const { id } = action.payload;
-            const index = state.customerDetails.findIndex(val => val.id === id);
-            state.customerDetails[index] = action.payload
-        },
-        addSales: (state, action) => {
-            const { id, billItems, date } = action.payload;
 
-            const allInvoiceIds = state.customerBills.flatMap(customer =>
-                customer.bills.map(b => b.invoiceId)
-            );
+        // addSales: (state, action) => {
+        //     const { id, billItems, date } = action.payload;
 
-            const year = new Date().getFullYear();
+        //     const allInvoiceIds = state.customerBills.flatMap(customer =>
+        //         customer.bills.map(b => b.invoiceId)
+        //     );
 
-            const thisYearInvoices = allInvoiceIds.filter(id => id?.startsWith(`INV-${year}`));
+        //     const year = new Date().getFullYear();
 
-            let maxNumber = 0;
-            for (const inv of thisYearInvoices) {
-                const num = parseInt(inv.split('-')[2]);
-                if (num > maxNumber) maxNumber = num;
-            }
+        //     const thisYearInvoices = allInvoiceIds.filter(id => id?.startsWith(`INV-${year}`));
 
-            const newInvoiceId = `INV-${year}-${String(maxNumber + 1).padStart(4, '0')}`;
+        //     let maxNumber = 0;
+        //     for (const inv of thisYearInvoices) {
+        //         const num = parseInt(inv.split('-')[2]);
+        //         if (num > maxNumber) maxNumber = num;
+        //     }
 
-            const newBill = { invoiceId: newInvoiceId, billItems, date };
-            const index = state.customerBills.findIndex(val => val.id === id);
+        //     const newInvoiceId = `INV-${year}-${String(maxNumber + 1).padStart(4, '0')}`;
 
-            if (index !== -1) {
-                state.customerBills[index].bills.push(newBill);
-            } else {
-                state.customerBills.push({ id, bills: [newBill] });
-            }
-            const cusIndex = state.customerDetails.findIndex(val => val.id === id);
-            state.customerDetails[cusIndex].balance = state.customerDetails[cusIndex].balance + billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0)
-            const balanceIndex = state.customersTransactionHistory.findIndex(val => val.id === id);
-            if (balanceIndex !== -1) {
-                state.customersTransactionHistory[balanceIndex].history.push({
-                    amount: billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0), date, type: "debit",
-                    description: "Customer payment",
-                    category: "Payment"
-                })
-            } else {
-                state.customersTransactionHistory.push({
-                    id: id, history: [{
-                        amount: billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0), date, type: "debit",
-                        description: "Customer payment",
-                        category: "Payment"
-                    }]
-                })
-            }
-        }, updateSales: (state, action) => {
-            const { id, billId, billItems } = action.payload;
-            const cusIndex = state.customerBills.findIndex(val => val.id === id);
-            const billIndex = state.customerBills[cusIndex].bills.findIndex(val => val.invoiceId === billId);
-            const total = billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0) - state.customerBills[cusIndex].bills[billIndex].billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0);
-            state.customerBills[cusIndex].bills[billIndex].billItems = billItems;
-            const index = state.customerDetails.findIndex(val => val.id === id);
-            state.customerDetails[index].balance = state.customerDetails[index].balance + total
+        //     const newBill = { invoiceId: newInvoiceId, billItems, date };
+        //     const index = state.customerBills.findIndex(val => val.id === id);
 
-        },
+        //     if (index !== -1) {
+        //         state.customerBills[index].bills.push(newBill);
+        //     } else {
+        //         state.customerBills.push({ id, bills: [newBill] });
+        //     }
+        //     const cusIndex = state.customerDetails.findIndex(val => val.id === id);
+        //     state.customerDetails[cusIndex].balance = state.customerDetails[cusIndex].balance + billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0)
+        //     const balanceIndex = state.customersTransactionHistory.findIndex(val => val.id === id);
+        //     if (balanceIndex !== -1) {
+        //         state.customersTransactionHistory[balanceIndex].history.push({
+        //             amount: billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0), date, type: "debit",
+        //             description: "Customer payment",
+        //             category: "Payment"
+        //         })
+        //     } else {
+        //         state.customersTransactionHistory.push({
+        //             id: id, history: [{
+        //                 amount: billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0), date, type: "debit",
+        //                 description: "Customer payment",
+        //                 category: "Payment"
+        //             }]
+        //         })
+        //     }
+        // },
+        // updateSales: (state, action) => {
+        //     const { id, billId, billItems } = action.payload;
+        //     const cusIndex = state.customerBills.findIndex(val => val.id === id);
+        //     const billIndex = state.customerBills[cusIndex].bills.findIndex(val => val.invoiceId === billId);
+        //     const total = billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0) - state.customerBills[cusIndex].bills[billIndex].billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0);
+        //     state.customerBills[cusIndex].bills[billIndex].billItems = billItems;
+        //     const index = state.customerDetails.findIndex(val => val.id === id);
+        //     state.customerDetails[index].balance = state.customerDetails[index].balance + total
+
+        // },
+
         updateBalance: (state, action) => {
             const { customerId, amount, paymentMethod, date } = action.payload;
 
@@ -262,17 +256,17 @@ const customerSlice = createSlice({
             const billIndex = state.customerBills[index].bills.findIndex(val => val.invoiceId === invoiceId);
             state.customerBills[index].bills.splice(billIndex, 1);
         },
-        deleteCustomer: (state, action) => {
-            const { id } = action.payload;
-            const cusIndex = state.customerDetails.findIndex(val => val.id === id);
-            const billIndex = state.customerBills.findIndex(val => val.id === id);
-            const creditIndex = state.customersCreditHistory.findIndex(val => val.customerId === id);
-            const transactionIndex = state.customersTransactionHistory.findIndex(val => val.id === id)
-            state.customerDetails.splice(cusIndex, 1);
-            state.customerBills.splice(billIndex, 1);
-            state.customersCreditHistory.splice(creditIndex, 1);
-            state.customersTransactionHistory.splice(transactionIndex, 1)
-        },
+        // deleteCustomer: (state, action) => {
+        //     const { id } = action.payload;
+        //     const cusIndex = state.customerDetails.findIndex(val => val.id === id);
+        //     const billIndex = state.customerBills.findIndex(val => val.id === id);
+        //     const creditIndex = state.customersCreditHistory.findIndex(val => val.customerId === id);
+        //     const transactionIndex = state.customersTransactionHistory.findIndex(val => val.id === id)
+        //     state.customerDetails.splice(cusIndex, 1);
+        //     state.customerBills.splice(billIndex, 1);
+        //     state.customersCreditHistory.splice(creditIndex, 1);
+        //     state.customersTransactionHistory.splice(transactionIndex, 1)
+        // },
         fetchCustomers: (state, action) => {
             state.customerDetails = [...action.payload]
         },

@@ -62,11 +62,78 @@ const updateCreditHistory = async (req, res) => {
 };
 
 
+const addCreditHistory = async (req, res) => {
+    try {
+        const { customerId, amount, paymentMethod, date } = req.body;
+
+        if (!customerId || !amount || !paymentMethod || !date) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const newEntry = {
+            amount,
+            paymentMethod,
+            date
+        };
+
+        let customerHistory = await CustomerCreditHistory.findOne({ customerId });
+
+        if (customerHistory) {
+            customerHistory.history.push(newEntry);
+        } else {
+            customerHistory = new CustomerCreditHistory({
+                customerId,
+                history: [newEntry]
+            });
+        }
+        await customerHistory.save();
+
+        const customer = await Customer.findOne({ id: customerId });
+        if (customer) {
+            customer.balance = (customer.balance || 0) - amount;
+            await customer.save();
+        }
+
+        let txn = await CustomerTransaction.findOne({ id: customerId });
+        const transactionEntry = {
+            amount,
+            date,
+            type: 'credit',
+            description: 'Customer payment',
+            category: 'Payment'
+        };
+
+        if (txn) {
+            txn.history.push(transactionEntry);
+        } else {
+            txn = new CustomerTransaction({
+                id: customerId,
+                history: [transactionEntry]
+            });
+        }
+        await txn.save();
+
+        res.status(201).json({
+            message: 'Credit history, balance, and transaction updated successfully',
+            data: {
+                creditHistory: customerHistory,
+                transactionHistory: txn,
+                updatedCustomer: customer
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 
 const deleteCreditHistory = async (req, res) => {
     try {
         const { customerId, date } = req.params;
-        console.log(customerId)
+
         if (!customerId || !date) {
             return res.status(400).json({ message: "Customer ID and date required" });
         }
@@ -202,5 +269,6 @@ module.exports = {
     getCreditHistory,
     updateDayCredits,
     updateCreditHistory,
-    deleteCreditHistory
+    deleteCreditHistory,
+    addCreditHistory
 };

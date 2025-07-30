@@ -67,7 +67,6 @@ const EditBill = () => {
 
     const handleEditSales = () => {
         if (billItems?.length !== 0) {
-            // dispatch(updateSales({ id, billItems, billId }));
             dispatch(updateCustomerBill({ id, invoiceId: billId, billItems, date }));
         }
         navigate("/customerDetails")

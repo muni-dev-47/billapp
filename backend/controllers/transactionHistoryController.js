@@ -39,19 +39,19 @@ const addTransactionHistory = async (req, res) => {
     }
 };
 
-// const getTransactionHistory = async (req, res) => {
-//     try {
-//         const transactionData = await CustomerTransactionHistory.find({}); // get all docs
+const getTransactionHistory = async (req, res) => {
+    try {
+        const transactionData = await CustomerTransactionHistory.find({}); // get all docs
 
-//         if (!transactionData || transactionData.length === 0) {
-//             return res.status(404).json({ message: 'No transaction histories found' });
-//         }
+        if (!transactionData || transactionData.length === 0) {
+            return res.status(404).json({ message: 'No transaction histories found' });
+        }
 
-//         res.status(200).json(transactionData);
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error fetching transaction histories', error });
-//     }
-// };
+        res.status(200).json(transactionData);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching transaction histories', error });
+    }
+};
 
 // const getCustomerTransactionHistory = async (req, res) => {
 //     try {
@@ -75,5 +75,5 @@ const addTransactionHistory = async (req, res) => {
 module.exports = {
     // getCustomerTransactionHistory,
     addTransactionHistory,
-    // getTransactionHistory
+    getTransactionHistory
 };

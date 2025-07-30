@@ -6,7 +6,6 @@ const CustomerBills = require('../models/customerbillModel');
 const addCustomer = async (req, res) => {
     try {
         const { id, name, mobile, address, shopName, balance } = req.body;
-        console.log(id)
         if (!id || !name || !mobile || !address || !shopName) {
             return res.status(400).json({ message: 'All fields are required' });
         }
@@ -45,7 +44,6 @@ const getAllCustomers = async (req, res) => {
 const deleteCustomer = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(id)
         const customer = await Customer.findOneAndDelete({ id });
 
         if (!customer) {

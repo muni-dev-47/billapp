@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearInput, setFormInput, setUpdateFormData } from '../redux/inputSlice';
-import { addCustomer, addNewCustomer, updateCustomer } from '../redux/customerSlice';
+import { addCustomer, updateCustomer } from '../redux/customerSlice';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const AddCustomer = () => {
@@ -27,7 +27,6 @@ const AddCustomer = () => {
         e.preventDefault();
         if (validateForm()) {
             if (!location.state) {
-                // dispatch(addNewCustomer({ id: Date.now(), ...formData, balance: 0 }))
                 dispatch(addCustomer({ id: Date.now(), ...formData, balance: 0 }))
             }
             else {

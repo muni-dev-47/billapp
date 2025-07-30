@@ -5,7 +5,6 @@ const CustomerTransaction = require('../models/customerTransactionModel');
 const addCustomerBill = async (req, res) => {
     try {
         const { id, billItems, date } = req.body;
-        console.log(id)
         if (!id || !billItems || !date) {
             return res.status(400).json({ message: 'All fields are required' });
         }
@@ -50,7 +49,6 @@ const addCustomerBill = async (req, res) => {
         const customer = await Customer.findOne({ id });
 
         if (customer) {
-            console.log(customer)
             customer.balance += totalAmount;
             await customer.save();
         }
@@ -105,7 +103,6 @@ const updateCustomerBill = async (req, res) => {
     try {
         const { id, invoiceId } = req.params;
         const { billItems, date } = req.body;
-        console.log(id, invoiceId, date)
         const customerBill = await CustomerBill.findOne({ id });
         if (!customerBill) {
             return res.status(404).json({ message: 'Customer bill not found' });
