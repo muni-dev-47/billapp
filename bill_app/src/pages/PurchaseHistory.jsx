@@ -141,7 +141,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { deleteBill, deleteCustomerBill, fatchBillItems } from '../redux/customerSlice';
@@ -149,7 +149,6 @@ import { deleteBill, deleteCustomerBill, fatchBillItems } from '../redux/custome
 const PurchaseHistory = () => {
     const location = useLocation();
     const { id } = location?.state;
-    console.log(location.state)
     const customerBills = useSelector(state => state.customer.customerBills);
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(true);
@@ -158,7 +157,6 @@ const PurchaseHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const bills = customerBills.find(bill => bill.id === id)?.bills || []
     const purchases = bills?.map(val => ({ id: val.invoiceId, date: val.date, total: val.billItems.reduce((sum, val) => sum + (val.itemPrice * val.itemCount), 0) })) || []
-    console.log(customerBills)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -176,7 +174,7 @@ const PurchaseHistory = () => {
             } catch (err) { }
         }
         fetchBill();
-    }, [location.state.id])
+    }, [id, dispatch])
 
     const filteredPurchases = purchases?.filter(purchase => {
         if (filter === 'month') {
@@ -213,8 +211,8 @@ const PurchaseHistory = () => {
 
     if (loading) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-                <div className="spinner-border text-indigo-500" role="status">
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <div className="spinner-grow text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                 </div>
             </div>

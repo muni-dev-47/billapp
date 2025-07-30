@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 
-const PaymentModal = ({ customer, onClose, onSubmit }) => {
+const PaymentModal = ({ customer, onClose, onSubmit, updatePayment, isEditMode }) => {
     const [amount, setAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const amt = parseFloat(amount);
-        if (amt > customer.balance) {
+        if (amt > customer.balance && !isEditMode) {
             alert("Amount exceeds customer's balance.");
             return;
+        } else if (amt > customer.balance + updatePayment?.amount && isEditMode) {
+            alert("Amount exceeds customer's balance.");
         } else {
             if (window.confirm("Are you sure you want to proceed with the payment?")) {
                 onSubmit({
@@ -39,7 +41,7 @@ const PaymentModal = ({ customer, onClose, onSubmit }) => {
                                 <input
                                     type="text"
                                     className="form-control form-control-lg"
-                                    value={`₹${customer.balance.toFixed(2)}`}
+                                    value={`₹${Number(isEditMode ? customer.balance + updatePayment.amount : customer.balance).toFixed(2)}`}
                                     readOnly
                                 />
                             </div>

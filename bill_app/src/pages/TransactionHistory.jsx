@@ -341,15 +341,13 @@
 
 
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { fetchTransactions } from '../redux/customerSlice';
 
 const TransactionHistory = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const { id } = location.state || {};
 
     const transactionHistory = useSelector(store => store.customer.customersTransactionHistory || []);
@@ -433,7 +431,6 @@ const TransactionHistory = () => {
                     </div>
                 </div>
 
-                {/* Summary Cards */}
                 <div className="row g-2 g-sm-3 p-2 p-sm-3">
                     <div className="col-12 col-md-6">
                         <div className="card h-100 border-success border-opacity-50">

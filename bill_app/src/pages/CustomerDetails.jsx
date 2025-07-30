@@ -1064,8 +1064,8 @@ const CustomerDetails = () => {
 
     if (loading) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-                <div className="spinner-border text-indigo-500" role="status">
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <div className="spinner-grow text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                 </div>
             </div>
@@ -1260,7 +1260,7 @@ const CustomerDetails = () => {
                                                     </button>
                                                     <button
                                                         className="btn btn-outline-warning flex-fill py-2 d-flex align-items-center justify-content-center"
-                                                        onClick={() => navigate("/creditHistory", { state: { id: cus.id } })}
+                                                        onClick={() => navigate("/creditHistory", { state: { customer: cus } })}
                                                     >
                                                         <i className="bi bi-credit-card me-1"></i>
                                                         <span className="d-none d-sm-inline">Credit</span>

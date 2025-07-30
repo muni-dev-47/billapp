@@ -31,7 +31,6 @@ const AddCustomer = () => {
                 dispatch(addCustomer({ id: Date.now(), ...formData, balance: 0 }))
             }
             else {
-                console.log(formData)
                 dispatch(updateCustomer({ ...formData }))
             }
             dispatch(clearInput())

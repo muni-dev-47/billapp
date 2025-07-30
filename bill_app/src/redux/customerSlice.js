@@ -109,11 +109,60 @@ export const deleteCustomerBill = createAsyncThunk(
     }
 );
 
+export const postDayCredits = createAsyncThunk(
+    'customer/postDayCredits',
+    async (dayCusCredits, { rejectWithValue }) => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/credits/dayCredits', { dayCusCredits });
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data || 'Server Error');
+        }
+    }
+);
+
+
+export const updateCreditEntry = createAsyncThunk(
+    'credit/updateCreditEntry',
+    async ({ customerId, date, amount, paymentMethod }, thunkAPI) => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/credits/updateCredit', {
+                customerId,
+                date,
+                amount,
+                paymentMethod,
+            });
+
+            return res.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(
+                error.response?.data?.message || 'Update failed'
+            );
+        }
+    }
+);
+
+export const deleteCreditEntry = createAsyncThunk(
+    'customer/deleteCreditEntry',
+    async ({ customerId, date }, thunkAPI) => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/credits/deleteCreditHistory/${customerId}/${encodeURIComponent(date)}`);
+            return {
+                customerId,
+                date
+            };
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const initialState = {
     customerDetails: [],
     customerBills: [],
     customersCreditHistory: [],
-    customersTransactionHistory: []
+    customersTransactionHistory: [],
+    dayCusCredits: []
 }
 const customerSlice = createSlice({
     name: 'customer',
@@ -158,7 +207,7 @@ const customerSlice = createSlice({
             const cusIndex = state.customerDetails.findIndex(val => val.id === id);
             state.customerDetails[cusIndex].balance = state.customerDetails[cusIndex].balance + billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0)
             const balanceIndex = state.customersTransactionHistory.findIndex(val => val.id === id);
-            if (balanceIndex != -1) {
+            if (balanceIndex !== -1) {
                 state.customersTransactionHistory[balanceIndex].history.push({
                     amount: billItems.reduce((sum, val) => sum + val.itemPrice * val.itemCount, 0), date, type: "debit",
                     description: "Customer payment",
@@ -200,7 +249,7 @@ const customerSlice = createSlice({
             if (cusIndex !== -1) {
                 state.customerDetails[cusIndex].balance -= amount;
                 const index = state.customersTransactionHistory.findIndex(val => val.id === customerId);
-                if (index != -1) {
+                if (index !== -1) {
                     state.customersTransactionHistory[index].history.push({ amount, date, type: "credit", description: "Sales payment", category: "Sales" })
                 } else {
                     state.customersTransactionHistory.push({ id: customerId, history: [{ amount, date, type: "credit", description: "Sales payment", category: "Sales" }] })
@@ -217,7 +266,7 @@ const customerSlice = createSlice({
             const { id } = action.payload;
             const cusIndex = state.customerDetails.findIndex(val => val.id === id);
             const billIndex = state.customerBills.findIndex(val => val.id === id);
-            const creditIndex = state.customersCreditHistory.findIndex(val => val.customerId == id);
+            const creditIndex = state.customersCreditHistory.findIndex(val => val.customerId === id);
             const transactionIndex = state.customersTransactionHistory.findIndex(val => val.id === id)
             state.customerDetails.splice(cusIndex, 1);
             state.customerBills.splice(billIndex, 1);
@@ -234,13 +283,33 @@ const customerSlice = createSlice({
                 state.customerBills[0].bills = action.payload.bills
         },
         fetchCredits: (state, action) => {
-            state.customersCreditHistory.push(action.payload);
+            if (!state.customersCreditHistory.some(val => val.customerId === action.payload.customerId)) {
+                state.customersCreditHistory.push(action.payload);
+            } else {
+                state.customersCreditHistory[0].history = action.payload.history;
+            }
         },
         fetchTransactions: (state, action) => {
             state.customersTransactionHistory = action.payload;
+        },
+        addDayCredit: (state, action) => {
+            const { customerId } = action.payload;
+
+            const existingIndex = state.dayCusCredits.findIndex(
+                entry => entry.customerId === customerId
+            );
+
+            if (existingIndex !== -1) {
+                state.dayCusCredits[existingIndex] = action.payload;
+            } else {
+                state.dayCusCredits.push(action.payload);
+            }
+        },
+        clearDayCredits: (state) => {
+            state.dayCusCredits = [];
         }
     }
 })
 
-export const { addNewCustomer, deleteBill, fetchTransactions, fetchCredits, fatchBillItems, addSales, updateSales, updateBalance, fetchCustomers } = customerSlice.actions;
+export const { addNewCustomer, deleteBill, addDayCredit, clearDayCredits, fetchTransactions, fetchCredits, fatchBillItems, addSales, updateSales, updateBalance, fetchCustomers } = customerSlice.actions;
 export default customerSlice.reducer;
