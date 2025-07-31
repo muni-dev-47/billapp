@@ -38,7 +38,6 @@ export const updateCustomerBill = createAsyncThunk(
     "billing/updateCustomerBill",
     async ({ id, invoiceId, billItems, date }, { rejectWithValue }) => {
         try {
-            console.log(id, invoiceId, date)
             const response = await axios.put(
                 `http://localhost:5000/api/bill/update/${id}/${invoiceId}`,
                 { billItems, date }
@@ -146,7 +145,7 @@ export const deleteCreditEntry = createAsyncThunk(
     'customer/deleteCreditEntry',
     async ({ customerId, date }, thunkAPI) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/credits/deleteCreditHistory/${customerId}/${encodeURIComponent(date)}`);
+            const response = await axios.delete(`http://localhost:5000/api/credits/deleteCreditHistory/${customerId}/${date}`);
             return {
                 customerId,
                 date

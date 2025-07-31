@@ -389,12 +389,27 @@ const Home = () => {
         setSelectedCustomer(customer);
     };
 
+    const todayTime = new Date();
+    const selectedDateObj = new Date(selectedDate);
+
+    selectedDateObj.setHours(todayTime.getHours());
+    selectedDateObj.setMinutes(todayTime.getMinutes());
+    selectedDateObj.setSeconds(todayTime.getSeconds());
+    selectedDateObj.setMilliseconds(todayTime.getMilliseconds());
     const handleCloseModal = () => {
         setSelectedCustomer(null);
     };
 
     const handlePaymentSubmit = ({ customerId, amount, paymentMethod }) => {
-        dispatch(addDayCredit({ customerId, date: selectedDate, amount, paymentMethod }))
+        const todayTime = new Date();
+        const selectedDateObj = new Date(selectedDate);
+
+        selectedDateObj.setHours(todayTime.getHours());
+        selectedDateObj.setMinutes(todayTime.getMinutes());
+        selectedDateObj.setSeconds(todayTime.getSeconds());
+        selectedDateObj.setMilliseconds(todayTime.getMilliseconds());
+
+        dispatch(addDayCredit({ customerId, date: selectedDateObj.toISOString(), amount, paymentMethod }))
         handleCloseModal();
     };
 

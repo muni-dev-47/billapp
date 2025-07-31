@@ -78,7 +78,6 @@ const Bill = () => {
 
     const validateEditForm = () => {
         const newErrors = {};
-        console.log(editFormData)
         if (!editFormData?.itemName?.trim()) newErrors.itemName = 'Customer name is required';
         if (!editFormData?.itemPrice?.trim() || Number(editFormData?.itemPrice) <= 0) newErrors.itemPrice = 'Mobile number is required';
         if (!editFormData?.itemCount?.trim() || Number(editFormData?.itemCount) <= 0) newErrors.itemCount = 'Mobile number is required';

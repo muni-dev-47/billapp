@@ -26,6 +26,7 @@ const PaymentModal = ({ customer, onClose, onSubmit, updatePayment, isEditMode }
         }
     };
 
+
     return (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="modal-dialog modal-dialog-centered">
@@ -41,7 +42,11 @@ const PaymentModal = ({ customer, onClose, onSubmit, updatePayment, isEditMode }
                                 <input
                                     type="text"
                                     className="form-control form-control-lg"
-                                    value={`₹${Number(isEditMode ? customer.balance + updatePayment.amount : customer.balance).toFixed(2)}`}
+                                    value={`₹${Number(
+                                        isEditMode
+                                            ? (parseFloat(customer.balance) || 0) + (parseFloat(updatePayment?.amount) || 0)
+                                            : (parseFloat(customer.balance) || 0)
+                                    ).toFixed(2)}`}
                                     readOnly
                                 />
                             </div>
@@ -96,3 +101,4 @@ const PaymentModal = ({ customer, onClose, onSubmit, updatePayment, isEditMode }
 };
 
 export default PaymentModal;
+

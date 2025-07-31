@@ -10,6 +10,7 @@ const AddCustomer = () => {
     const navigate = useNavigate();
     let formData = useSelector(store => store.formData);
 
+    
     useEffect(() => {
         if (location.state) {
             dispatch(setUpdateFormData({ ...location.state }));

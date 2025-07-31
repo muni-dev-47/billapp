@@ -15,8 +15,8 @@ const CreditHistory = () => {
     const [showConfirm, setShowConfirm] = useState(false);
     const [paymentToDelete, setPaymentToDelete] = useState(null);
     const [selectedPayment, setSelectedPayment] = useState(null);
+    const [customerDetails, setCustomerDetails] = useState({ ...customer })
     const [showPaymentModal, setShowPaymentModal] = useState(false);
-
     const totalPaid = creditHistory.reduce((sum, payment) => sum + payment.amount, 0);
 
     const getPaymentTypeBadge = (type) => {
@@ -52,7 +52,7 @@ const CreditHistory = () => {
 
     const handleDeletePayment = async () => {
         try {
-            await dispatch(deleteCreditEntry({ customerId: id, date: paymentToDelete.date })).unwrap();
+            await dispatch(deleteCreditEntry({ customerId: id, date: paymentToDelete.date})).unwrap();
 
             const { data } = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
             dispatch(fetchCredits({ ...data }));
@@ -67,14 +67,15 @@ const CreditHistory = () => {
 
     const handlePaymentSubmit = async (cus) => {
         try {
-
             cus.date = selectedPayment.date;
+            cus._id = selectedPayment._id;
 
+            setCustomerDetails(prev => ({ ...prev, balance: prev.balance - cus.amount + selectedPayment.amount }))
             await dispatch(updateCreditEntry({ ...cus })).unwrap();
 
             const data = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
+            
             dispatch(fetchCredits({ ...data.data }));
-
             setSelectedPayment(null);
             setShowPaymentModal(false);
         } catch (err) {
@@ -88,16 +89,13 @@ const CreditHistory = () => {
         const fetchData = async () => {
             try {
                 const data = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
-                console.log(data.data)
                 dispatch(fetchCredits({ ...data.data }));
             } catch (err) {
                 console.error("Error fetching credit history:", err);
             }
         };
         fetchData();
-    }, [id, dispatch]);
-
-
+    }, []);
 
     return (
         <div className="container-fluid py-3 px-2 px-sm-3">
@@ -112,9 +110,9 @@ const CreditHistory = () => {
                 variant="danger"
             />
 
-            {showPaymentModal && selectedPayment && (
+            {showPaymentModal && (
                 <PaymentModal
-                    customer={customer}
+                    customer={customerDetails}
                     onClose={() => {
                         setShowPaymentModal(false);
                         setSelectedPayment(null);
@@ -124,6 +122,7 @@ const CreditHistory = () => {
                     updatePayment={selectedPayment}
                 />
             )}
+
 
             <div className="card shadow-lg border-0 overflow-hidden">
                 <div className="card-header bg-gradient-primary text-dark p-3 p-sm-4">

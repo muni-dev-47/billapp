@@ -138,15 +138,13 @@ const deleteCreditHistory = async (req, res) => {
             return res.status(400).json({ message: "Customer ID and date required" });
         }
 
-        const creditDate = new Date(date);
-
         const creditHistory = await CustomerCreditHistory.findOne({ customerId });
         if (!creditHistory) {
             return res.status(404).json({ message: "Credit history not found" });
         }
 
         const historyIndex = creditHistory.history.findIndex(
-            (entry) => new Date(entry.date).getTime() === creditDate.getTime()
+            (entry) => new Date(entry.date).getTime() === new Date(date).getTime()
         );
         if (historyIndex === -1) {
             return res.status(404).json({ message: "Credit entry not found for the given date" });
@@ -167,7 +165,7 @@ const deleteCreditHistory = async (req, res) => {
         if (txn) {
             const txnIndex = txn.history.findIndex(
                 (entry) =>
-                    new Date(entry.date).getTime() === creditDate.getTime() &&
+                    new Date(entry.date).getTime() === new Date(date).getTime() &&
                     entry.type === "credit"
             );
             if (txnIndex !== -1) {

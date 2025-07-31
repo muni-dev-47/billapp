@@ -26,10 +26,11 @@ const CustomerDetails = () => {
         setShowPaymentModal(true);
     };
 
-    const handlePaymentSubmit = (paymentData) => {
-        // dispatch(updateBalance({ ...paymentData }))
-        dispatch(postCreditHistory({ ...paymentData }))
+    const handlePaymentSubmit = async (paymentData) => {
+        await dispatch(postCreditHistory({ ...paymentData }));
         setShowPaymentModal(false);
+        const { data } = await axios.get("http://localhost:5000/api/customers/get");
+        dispatch(fetchCustomers([...data]));
     };
 
     const handleDelete = (id) => {
@@ -48,11 +49,10 @@ const CustomerDetails = () => {
                 const data = await axios.get("http://localhost:5000/api/customers/get");
                 dispatch(fetchCustomers([...data.data]))
             } catch (error) {
-
             }
         }
-        fetch()
-    }, [customerList])
+        fetch();
+    }, [dispatch]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -75,7 +75,7 @@ const CustomerDetails = () => {
     return (
 
         <div className="container-fluid px-2 px-sm-3 py-3">
-            {showPaymentModal && selectedCustomer && (
+            {showPaymentModal && (
                 <PaymentModal
                     customer={selectedCustomer}
                     onClose={() => setShowPaymentModal(false)}
@@ -155,19 +155,20 @@ const CustomerDetails = () => {
                         </div>
                     </div>
                 ) : (
-                    filteredCustomers.map((cus) => (
+                    filteredCustomers.map((cus, index) => (
                         <div key={cus.id} className="col-12">
                             <div className="card shadow-sm border-0 overflow-hidden">
                                 <div className="card-body p-3 p-sm-4">
                                     <div className="row gy-3">
-                                        {/* Left Column - Customer Info */}
                                         <div className="col-md-7 col-lg-8">
                                             <div className="d-flex flex-column h-100">
-                                                {/* Name and Balance */}
                                                 <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-2 mb-md-3 gap-2">
-                                                    <h4 className="mb-0 text-dark fw-bold text-break">
-                                                        <i className="bi bi-person-badge me-2"></i>
-                                                        {cus.name.toUpperCase()}
+                                                    <h4 className="mb-0 text-dark fw-bold text-break d-flex justify-content-between align-items-center">
+                                                        <span>
+                                                            <i className="bi bi-person-badge me-2"></i>
+                                                            {cus.name.toUpperCase()}
+                                                        </span>
+                                                        <span className="badge bg-secondary rounded-pill ms-3">{index + 1}</span>
                                                     </h4>
                                                     <span className={`d-inline-flex align-items-center ${cus.balance > 0 ? 'text-danger' : cus.balance < 0 ? 'text-success' : 'text-secondary'}`}>
                                                         <span className="fs-4 fs-sm-4 fw-bold me-1">₹{Math.abs(cus.balance || 0).toFixed(2)}</span>
