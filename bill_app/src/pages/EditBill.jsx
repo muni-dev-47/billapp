@@ -21,6 +21,8 @@ const EditBill = () => {
     const id = cusId
     const [errors, setErrors] = useState({});
     const [editerrors, setEditErrors] = useState({})
+    const [loading, setLoading] = useState(false);
+
     const nameRef = useRef();
     const priceRef = useRef();
     const countRef = useRef();
@@ -65,12 +67,27 @@ const EditBill = () => {
         dispatch(setBillFormData({ name, value }))
     }
 
-    const handleEditSales = () => {
-        if (billItems?.length !== 0) {
-            dispatch(updateCustomerBill({ id, invoiceId: billId, billItems, date }));
+    const handleEditSales = async () => {
+        if (billItems?.length === 0) return;
+
+        setLoading(true); 
+
+        try {
+            await dispatch(updateCustomerBill({
+                id,
+                invoiceId: billId,
+                billItems,
+                date
+            })).unwrap();
+
+            navigate("/customerDetails");
+        } catch (err) {
+            alert(err.message || "Failed to update bill");
+        } finally {
+            setLoading(false)
         }
-        navigate("/customerDetails")
-    }
+    };
+
 
     const validateForm = () => {
         const newErrors = {};
@@ -94,6 +111,17 @@ const EditBill = () => {
         dispatch(editBillItems(Array.isArray(billDetail?.billItems) ? [...billDetail.billItems] : []));
         return () => dispatch(removeBillItems());
     }, []);
+
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <div className="spinner-grow text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container-fluid mt-3 px-2">

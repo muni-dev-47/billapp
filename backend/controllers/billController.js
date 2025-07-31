@@ -196,12 +196,44 @@ const deleteCustomerBill = async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
+
 };
+
+const softDeleteCustomerBill = async (req, res) => {
+    try {
+        const { id, invoiceId } = req.params;
+
+        const customerBill = await CustomerBill.findOne({ id });
+        if (!customerBill) {
+            return res.status(404).json({ message: 'Customer bill not found' });
+        }
+
+        const billExists = customerBill.bills.some(bill => bill.invoiceId === invoiceId);
+        if (!billExists) {
+            return res.status(404).json({ message: 'Invoice not found' });
+        }
+
+        customerBill.bills = customerBill.bills.filter(bill => bill.invoiceId !== invoiceId);
+        await customerBill.save();
+
+
+        res.json({
+            message: 'Bill deleted successfully (balance not affected)',
+            customerBill,
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 
 
 module.exports = {
     addCustomerBill,
     updateCustomerBill,
     deleteCustomerBill,
-    getCustomerBills
+    getCustomerBills,
+    softDeleteCustomerBill
 };

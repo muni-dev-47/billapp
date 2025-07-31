@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { deleteBill, deleteCustomerBill, fatchBillItems } from '../redux/customerSlice';
+import { deleteBill, deleteCustomerBill, fatchBillItems, softDeleteCustomerBill } from '../redux/customerSlice';
+import ConfirmationPopup from '../component/ConfirmPopup';
 
 const PurchaseHistory = () => {
     const location = useLocation();
@@ -13,6 +14,9 @@ const PurchaseHistory = () => {
     const navigate = useNavigate();
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteType, setDeleteType] = useState('');
+    const [selectedBillId, setSelectedBillId] = useState(null);
     const bills = customerBills.find(bill => bill.id === id)?.bills || []
     const purchases = bills?.map(val => ({ id: val.invoiceId, date: val.date, total: val.billItems.reduce((sum, val) => sum + (val.itemPrice * val.itemCount), 0) })) || []
 
@@ -61,11 +65,31 @@ const PurchaseHistory = () => {
     };
 
     const handleDeleteBill = (id, invoiceId) => {
-        if (window.confirm("Are you sure you want to delete this bill?")) {
-            dispatch(deleteBill({ id, invoiceId }))
-            dispatch(deleteCustomerBill({ id, invoiceId }))
-        }
+        dispatch(deleteBill({ id, invoiceId }))
+        dispatch(deleteCustomerBill({ id, invoiceId }))
+
     }
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setDeleteType('');
+        setSelectedBillId(null);
+    };
+    const confirmDelete = async () => {
+        if (deleteType === 'full') {
+            handleDeleteBill(id, selectedBillId);
+        } else if (deleteType === 'soft') {
+            await dispatch(softDeleteCustomerBill({ id, invoiceId: selectedBillId })).unwrap();
+            const fetchBill = async () => {
+                try {
+                    const data = await axios.get(`http://localhost:5000/api/bill/get/${location.state.id}`)
+                    dispatch(fatchBillItems({ ...data.data }))
+                } catch (err) { }
+            }
+            fetchBill();
+        }
+        cancelDelete();
+    };
 
     if (loading) {
         return (
@@ -79,6 +103,21 @@ const PurchaseHistory = () => {
 
     return (
         <div className="container-fluid px-2 px-sm-3 py-3">
+            {showConfirm && <ConfirmationPopup
+                show={showConfirm}
+                onHide={cancelDelete}
+                onConfirm={confirmDelete}
+                title={deleteType === 'full' ? "Delete & Adjust Balance" : "Remove from View"}
+                message={
+                    deleteType === 'full'
+                        ? "Are you sure you want to delete this bill and adjust the balance?"
+                        : "Are you sure you want to remove this bill from view? This won't affect balance."
+                }
+                confirmText={deleteType === 'full' ? "Delete" : "Remove"}
+                cancelText="Cancel"
+                variant={deleteType === 'full' ? "danger" : "secondary"}
+            />
+            }
             <div className="card border-0 shadow-sm rounded-3 overflow-hidden">
                 <div className="card-header bg-gradient-indigo text-dark">
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
@@ -121,26 +160,41 @@ const PurchaseHistory = () => {
                         <table className="table table-hover mb-0">
                             <thead className="bg-indigo-50">
                                 <tr>
-                                    <th className="ps-4 text-indigo-600 fw-semibold">Order ID</th>
-                                    <th className="text-indigo-600 fw-semibold">Date</th>
-                                    <th className="text-indigo-600 fw-semibold">Amount</th>
-                                    <th className="pe-4 text-end text-indigo-600 fw-semibold">Action</th>
+                                    <th className="ps-4 text-indigo-600 fw-semibold" style={{ width: '20%' }}>Order ID</th>
+                                    <th className="text-indigo-600 fw-semibold" style={{ width: '20%' }}>Date</th>
+                                    <th className="text-indigo-600 fw-semibold" style={{ width: '20%' }}>Amount</th>
+                                    <th className="pe-4 text-end text-indigo-600 fw-semibold" style={{ width: '30%' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredPurchases.length > 0 ? (
                                     filteredPurchases.map((purchase, index) => (
                                         <tr key={index} className="align-middle border-bottom border-light">
-                                            <td className="ps-4 fw-medium text-indigo-800">{purchase.id}</td>
-                                            <td className="text-muted">{formatDate(purchase.date)}</td>
-                                            <td className="fw-bold text-indigo-600">₹{purchase.total.toLocaleString()}</td>
-                                            <td className="pe-4 text-end">
+                                            <td className="ps-4 fw-medium text-indigo-800" style={{ width: '20%' }}>{purchase.id}</td>
+                                            <td className="text-muted" style={{ width: '20%' }}>{formatDate(purchase.date)}</td>
+                                            <td className="fw-bold text-indigo-600" style={{ width: '20%' }}>₹{purchase.total.toLocaleString()}</td>
+                                            <td className="pe-4 text-end" style={{ width: '40%' }}>
                                                 <div className="d-flex justify-content-end gap-2">
                                                     <button
                                                         className="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                                        onClick={() => handleDeleteBill(id, purchase.id)}
+                                                        onClick={() => {
+                                                            setDeleteType('full');
+                                                            setSelectedBillId(purchase.id);
+                                                            setShowConfirm(true);
+                                                        }}
                                                     >
                                                         <i className="bi bi-trash me-1"></i> Delete
+                                                    </button>
+
+                                                    <button
+                                                        className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                        onClick={() => {
+                                                            setDeleteType('soft');
+                                                            setSelectedBillId(purchase.id);
+                                                            setShowConfirm(true);
+                                                        }}
+                                                    >
+                                                        <i className="bi bi-x-lg me-1"></i> Remove
                                                     </button>
 
                                                     <button
@@ -159,7 +213,6 @@ const PurchaseHistory = () => {
                                                     </button>
                                                 </div>
                                             </td>
-
                                         </tr>
                                     ))
                                 ) : (
@@ -176,6 +229,7 @@ const PurchaseHistory = () => {
                         </table>
                     </div>
 
+                    {/* Mobile view remains the same */}
                     <div className="d-md-none">
                         {filteredPurchases.length > 0 ? (
                             filteredPurchases.map((purchase, index) => (
@@ -193,9 +247,24 @@ const PurchaseHistory = () => {
                                         <div className="d-flex justify-content-end gap-2">
                                             <button
                                                 className="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                                onClick={() => dispatch({ id, invoiceId: purchase.id })}
+                                                onClick={() => {
+                                                    setDeleteType('full');
+                                                    setSelectedBillId(purchase.id);
+                                                    setShowConfirm(true);
+                                                }}
                                             >
                                                 <i className="bi bi-trash me-1"></i> Delete
+                                            </button>
+
+                                            <button
+                                                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                onClick={() => {
+                                                    setDeleteType('soft');
+                                                    setSelectedBillId(purchase.id);
+                                                    setShowConfirm(true);
+                                                }}
+                                            >
+                                                <i className="bi bi-x-lg me-1"></i> Remove
                                             </button>
 
                                             <button
@@ -213,7 +282,6 @@ const PurchaseHistory = () => {
                                                 <i className="bi bi-pencil-square me-1"></i> Edit
                                             </button>
                                         </div>
-
                                     </div>
                                 </div>
                             ))

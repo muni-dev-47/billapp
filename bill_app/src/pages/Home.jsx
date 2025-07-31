@@ -384,18 +384,10 @@ const Home = () => {
         return new Date().toISOString().split("T")[0];
     });
     const [searchQuery, setSearchQuery] = useState("");
-
     const handleOpenModal = (customer) => {
         setSelectedCustomer(customer);
     };
 
-    const todayTime = new Date();
-    const selectedDateObj = new Date(selectedDate);
-
-    selectedDateObj.setHours(todayTime.getHours());
-    selectedDateObj.setMinutes(todayTime.getMinutes());
-    selectedDateObj.setSeconds(todayTime.getSeconds());
-    selectedDateObj.setMilliseconds(todayTime.getMilliseconds());
     const handleCloseModal = () => {
         setSelectedCustomer(null);
     };
@@ -484,7 +476,6 @@ const Home = () => {
     return (
 
         <div className="container-fluid px-0">
-            {/* Header */}
             <div
                 className="py-4 px-3"
                 style={{
@@ -509,7 +500,6 @@ const Home = () => {
                                 })}
                             </p>
 
-                            {/* Mobile Date Picker - Only shows on small screens */}
                             <div className="mt-2 d-md-none">
                                 <input
                                     type="date"
@@ -556,7 +546,6 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Summary Cards - Mobile Stacked, Desktop Horizontal */}
             <div className="container-fluid mt-3">
                 <div className="row g-2">
                     <div className="col-12 col-md-4">

@@ -17,6 +17,8 @@ const Bill = () => {
     const id = location?.state?.id
     const [errors, setErrors] = useState({});
     const [editerrors, setEditErrors] = useState({})
+    const [loading, setLoading] = useState(false);
+
 
     const nameRef = useRef();
     const priceRef = useRef();
@@ -62,10 +64,26 @@ const Bill = () => {
         dispatch(setBillFormData({ name, value }))
     }
 
-    const handleSaveBill = () => {
-        if (billItems?.length !== 0) { dispatch(postSalesItem({ id, billItems, date: new Date().toISOString() })) }
-        navigate("/customerDetails")
-    }
+    const handleSaveBill = async () => {
+        if (billItems?.length === 0) return;
+
+        setLoading(true);
+
+        try {
+            await dispatch(postSalesItem({
+                id,
+                billItems,
+                date: new Date().toISOString()
+            })).unwrap();
+
+            navigate("/customerDetails");
+        } catch (err) {
+            alert(err.message || "Failed to save bill");
+        } finally {
+            setLoading(false)
+
+        }
+    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -88,6 +106,17 @@ const Bill = () => {
     useEffect(() => {
         return () => dispatch(removeBillItems())
     }, [])
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <div className="spinner-grow text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="container-fluid mt-3 px-2">

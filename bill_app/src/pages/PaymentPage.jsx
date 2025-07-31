@@ -57,8 +57,8 @@ const PaymentModal = ({ customer, onClose, onSubmit, updatePayment, isEditMode }
                                     className="form-control form-control-lg"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    step="0.01"
-                                    min="0.01"
+                                    step="0.00"
+                                    min="0.00"
                                     required
                                     placeholder="0.00"
                                 />

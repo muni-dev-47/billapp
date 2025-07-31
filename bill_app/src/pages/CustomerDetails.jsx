@@ -5,18 +5,22 @@ import PaymentModal from './PaymentPage';
 import { deleteCustomerById, postCreditHistory } from '../redux/customerSlice';
 import { fetchCustomers } from '../redux/customerSlice';
 import axios from 'axios';
+import ConfirmationPopup from '../component/ConfirmPopup';
 
 const CustomerDetails = () => {
     const customerList = useSelector(store => store.customer.customerDetails) ?? [];
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedId, setSelectedId] = useState(null);
     const navigate = useNavigate();
 
-    const filteredCustomers = customerList.filter(customer =>
+    const filteredCustomers = customerList.filter((customer, index) =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (index + 1).toString().includes(searchTerm) ||
         customer.mobile.includes(searchTerm) ||
         (customer.shopName && customer.shopName.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -27,20 +31,44 @@ const CustomerDetails = () => {
     };
 
     const handlePaymentSubmit = async (paymentData) => {
-        await dispatch(postCreditHistory({ ...paymentData }));
         setShowPaymentModal(false);
-        const { data } = await axios.get("http://localhost:5000/api/customers/get");
-        dispatch(fetchCustomers([...data]));
+        if (paymentData.amount > 0) {
+            try {
+                setLoading(true)
+                await dispatch(postCreditHistory({ ...paymentData })).unwrap();
+                const { data } = await axios.get("http://localhost:5000/api/customers/get");
+                dispatch(fetchCustomers([...data]));
+            } catch (err) {
+                alert(err.message || 'Error deleting customer');
+            } finally {
+                setLoading(false)
+            }
+        }
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this customer?')) {
-            try {
-                dispatch(deleteCustomerById(id));
-            } catch (err) {
-                alert(err.message || 'Error deleting customer');
-            }
+        setSelectedId(id);
+        setShowConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            setLoading(true)
+            await dispatch(deleteCustomerById(selectedId)).unwrap();
+            const data = await axios.get("http://localhost:5000/api/customers/get");
+            dispatch(fetchCustomers([...data.data]))
+        } catch (err) {
+            alert(err.message || 'Error deleting customer');
+        } finally {
+            setShowConfirm(false);
+            setSelectedId(null);
+            setLoading(false)
         }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+        setSelectedId(null);
     };
 
     useEffect(() => {
@@ -80,6 +108,18 @@ const CustomerDetails = () => {
                     customer={selectedCustomer}
                     onClose={() => setShowPaymentModal(false)}
                     onSubmit={handlePaymentSubmit}
+                />
+            )}
+            {showConfirm && (
+                <ConfirmationPopup
+                    show={showConfirm}
+                    onHide={cancelDelete}
+                    onConfirm={confirmDelete}
+                    title="Delete Customer"
+                    message="Are you sure you want to delete this customer?"
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="danger"
                 />
             )}
 
@@ -130,7 +170,6 @@ const CustomerDetails = () => {
             </div>
 
 
-            {/* Customer List */}
             <div className="row g-3">
                 {filteredCustomers.length === 0 ? (
                     <div className="col-12 text-center py-4 py-md-5">
@@ -178,7 +217,6 @@ const CustomerDetails = () => {
                                                     </span>
                                                 </div>
 
-                                                {/* Mobile and Shop */}
                                                 <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 gap-sm-4 mb-2 mb-md-3">
                                                     <div className="d-flex align-items-center">
                                                         <i className="bi bi-telephone fs-5 text-primary me-2"></i>
@@ -198,7 +236,6 @@ const CustomerDetails = () => {
                                                     )}
                                                 </div>
 
-                                                {/* Address */}
                                                 {cus.address && (
                                                     <div className="d-flex align-items-start">
                                                         <i className="bi bi-geo-alt fs-5 text-primary mt-1 me-2"></i>
@@ -211,10 +248,8 @@ const CustomerDetails = () => {
                                             </div>
                                         </div>
 
-                                        {/* Right Column - Action Buttons */}
                                         <div className="col-md-5 col-lg-4">
                                             <div className="d-flex flex-column h-100 gap-2">
-                                                {/* Primary Actions */}
                                                 <div className="d-grid gap-2">
                                                     <button
                                                         className="btn btn-primary py-2 d-flex align-items-center justify-content-center"
@@ -232,7 +267,6 @@ const CustomerDetails = () => {
                                                     </button>
                                                 </div>
 
-                                                {/* Secondary Actions */}
                                                 <div className="btn-group w-100" role="group">
                                                     <button
                                                         className="btn btn-outline-secondary flex-fill py-2 d-flex align-items-center justify-content-center"
@@ -250,7 +284,6 @@ const CustomerDetails = () => {
                                                     </button>
                                                 </div>
 
-                                                {/* History Buttons */}
                                                 <div className="btn-group w-100" role="group">
                                                     <button
                                                         className="btn btn-outline-info flex-fill py-2 d-flex align-items-center justify-content-center"

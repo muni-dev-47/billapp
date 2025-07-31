@@ -10,7 +10,7 @@ const AddCustomer = () => {
     const navigate = useNavigate();
     let formData = useSelector(store => store.formData);
 
-    
+
     useEffect(() => {
         if (location.state) {
             dispatch(setUpdateFormData({ ...location.state }));
@@ -24,14 +24,14 @@ const AddCustomer = () => {
         dispatch(setFormInput({ name, value }))
     };
 
-    const handleAddNewCustomer = (e) => {
+    const handleAddNewCustomer = async (e) => {
         e.preventDefault();
         if (validateForm()) {
             if (!location.state) {
-                dispatch(addCustomer({ id: Date.now(), ...formData, balance: 0 }))
+               await dispatch(addCustomer({ id: Date.now(), ...formData, balance: 0 })).unwrap();
             }
             else {
-                dispatch(updateCustomer({ ...formData }))
+               await dispatch(updateCustomer({ ...formData })).unwrap();
             }
             dispatch(clearInput())
             navigate("/customerDetails")

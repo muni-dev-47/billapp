@@ -156,6 +156,18 @@ export const deleteCreditEntry = createAsyncThunk(
     }
 );
 
+export const softDeleteCustomerBill = createAsyncThunk(
+    'customer/softDeleteCustomerBill',
+    async ({ id, invoiceId }, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`http://localhost:5000/api/bill/softDelete/${id}/${invoiceId}`);
+            return response.data.customerBill;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Soft delete failed');
+        }
+    }
+);
+
 const initialState = {
     customerDetails: [],
     customerBills: [],
@@ -214,16 +226,16 @@ const customerSlice = createSlice({
         //         })
         //     }
         // },
-        // updateSales: (state, action) => {
-        //     const { id, billId, billItems } = action.payload;
-        //     const cusIndex = state.customerBills.findIndex(val => val.id === id);
-        //     const billIndex = state.customerBills[cusIndex].bills.findIndex(val => val.invoiceId === billId);
-        //     const total = billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0) - state.customerBills[cusIndex].bills[billIndex].billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0);
-        //     state.customerBills[cusIndex].bills[billIndex].billItems = billItems;
-        //     const index = state.customerDetails.findIndex(val => val.id === id);
-        //     state.customerDetails[index].balance = state.customerDetails[index].balance + total
+        updateSales: (state, action) => {
+            const { id, billId, billItems } = action.payload;
+            const cusIndex = state.customerBills.findIndex(val => val.id === id);
+            const billIndex = state.customerBills[cusIndex].bills.findIndex(val => val.invoiceId === billId);
+            const total = billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0) - state.customerBills[cusIndex].bills[billIndex].billItems.reduce((sum, val) => sum + (val.itemCount * val.itemPrice), 0);
+            state.customerBills[cusIndex].bills[billIndex].billItems = billItems;
+            const index = state.customerDetails.findIndex(val => val.id === id);
+            state.customerDetails[index].balance = state.customerDetails[index].balance + total
 
-        // },
+        },
 
         updateBalance: (state, action) => {
             const { customerId, amount, paymentMethod, date } = action.payload;

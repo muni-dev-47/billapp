@@ -52,7 +52,7 @@ const CreditHistory = () => {
 
     const handleDeletePayment = async () => {
         try {
-            await dispatch(deleteCreditEntry({ customerId: id, date: paymentToDelete.date})).unwrap();
+            await dispatch(deleteCreditEntry({ customerId: id, date: paymentToDelete.date })).unwrap();
 
             const { data } = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
             dispatch(fetchCredits({ ...data }));
@@ -66,6 +66,10 @@ const CreditHistory = () => {
 
 
     const handlePaymentSubmit = async (cus) => {
+        if (cus.amount === 0) {
+            setShowPaymentModal(false);
+            return;
+        };
         try {
             cus.date = selectedPayment.date;
             cus._id = selectedPayment._id;
@@ -74,7 +78,7 @@ const CreditHistory = () => {
             await dispatch(updateCreditEntry({ ...cus })).unwrap();
 
             const data = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
-            
+
             dispatch(fetchCredits({ ...data.data }));
             setSelectedPayment(null);
             setShowPaymentModal(false);
