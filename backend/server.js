@@ -3,8 +3,14 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+
+// Allow requests from your React frontend
+app.use(cors({
+  origin: '*', // or '*' for all (not recommended in production)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 const customerRoutes = require('./routes/customerRoute');
 const billRoutes = require('./routes/billRoutes');

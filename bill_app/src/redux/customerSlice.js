@@ -5,7 +5,7 @@ export const postSalesItem = createAsyncThunk(
     'sales/postSalesItem',
     async (salesData, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/bill/add', salesData);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/bill/add`, salesData);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data || error.message);
@@ -19,7 +19,7 @@ export const updateCustomer = createAsyncThunk(
     async ({ id, name, mobile, address, shopName, balance }, { rejectWithValue }) => {
         try {
 
-            const response = await axios.put(`http://localhost:5000/api/customers/update/${id}`, {
+            const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/customers/update/${id}`, {
                 name,
                 mobile,
                 address,
@@ -39,7 +39,7 @@ export const updateCustomerBill = createAsyncThunk(
     async ({ id, invoiceId, billItems, date }, { rejectWithValue }) => {
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/bill/update/${id}/${invoiceId}`,
+                `${process.env.REACT_APP_BACKEND_URL}/api/bill/update/${id}/${invoiceId}`,
                 { billItems, date }
             );
             return response.data;
@@ -53,7 +53,7 @@ export const addCustomer = createAsyncThunk(
     'customer/addCustomer',
     async (customerData, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/customers/add', customerData);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/customers/add`, customerData);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -65,7 +65,7 @@ export const postCreditHistory = createAsyncThunk(
     'creditHistory/postCreditHistory',
     async ({ customerId, amount, paymentMethod, date }, thunkAPI) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/credits/add', {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/credits/add`, {
                 customerId,
                 amount,
                 paymentMethod,
@@ -84,7 +84,7 @@ export const deleteCustomerById = createAsyncThunk(
     'customers/deleteCustomerById',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/customers/delete/${id}`);
+            const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/customers/delete/${id}`);
             return { id, message: response.data.message };
         } catch (error) {
             return rejectWithValue(error.response?.data || { message: 'Unknown error' });
@@ -98,7 +98,7 @@ export const deleteCustomerBill = createAsyncThunk(
     'customerBills/deleteCustomerBill',
     async ({ id, invoiceId }, { rejectWithValue }) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/bill/delete/${id}/${invoiceId}`);
+            const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/bill/delete/${id}/${invoiceId}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(
@@ -112,7 +112,7 @@ export const postDayCredits = createAsyncThunk(
     'customer/postDayCredits',
     async (dayCusCredits, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/api/credits/dayCredits', { dayCusCredits });
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/credits/dayCredits`, { dayCusCredits });
             return response.data;
         } catch (err) {
             return rejectWithValue(err.response?.data || 'Server Error');
@@ -125,7 +125,7 @@ export const updateCreditEntry = createAsyncThunk(
     'credit/updateCreditEntry',
     async ({ customerId, date, amount, paymentMethod }, thunkAPI) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/credits/updateCredit', {
+            const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/credits/updateCredit`, {
                 customerId,
                 date,
                 amount,
@@ -145,7 +145,7 @@ export const deleteCreditEntry = createAsyncThunk(
     'customer/deleteCreditEntry',
     async ({ customerId, date }, thunkAPI) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/credits/deleteCreditHistory/${customerId}/${date}`);
+            const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/credits/deleteCreditHistory/${customerId}/${date}`);
             return {
                 customerId,
                 date
@@ -160,7 +160,7 @@ export const softDeleteCustomerBill = createAsyncThunk(
     'customer/softDeleteCustomerBill',
     async ({ id, invoiceId }, { rejectWithValue }) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/bill/softDelete/${id}/${invoiceId}`);
+            const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/bill/softDelete/${id}/${invoiceId}`);
             return response.data.customerBill;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Soft delete failed');

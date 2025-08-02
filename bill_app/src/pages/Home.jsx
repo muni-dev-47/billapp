@@ -214,7 +214,7 @@
 //     useEffect(() => {
 //         const fetch = async () => {
 //             try {
-//                 const data = await axios.get("http://localhost:5000/api/customers/get");
+//                 const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
 //                 dispatch(fetchCustomers([...data.data]))
 //             } catch (error) {
 
@@ -425,7 +425,7 @@ const Home = () => {
 
             await dispatch(postDayCredits(dayCusCredits)).unwrap();
 
-            const { data } = await axios.get("http://localhost:5000/api/customers/get");
+            const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
             dispatch(fetchCustomers([...data]));
 
             dispatch(clearDayCredits());
@@ -454,7 +454,7 @@ const Home = () => {
     useEffect(() => {
         const fetch = async () => {
             try {
-                const data = await axios.get("http://localhost:5000/api/customers/get");
+                const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
                 dispatch(fetchCustomers([...data.data]))
             } catch (error) {
                 console.error("Error fetching customers:", error);

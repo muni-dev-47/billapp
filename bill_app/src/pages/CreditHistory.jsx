@@ -54,7 +54,7 @@ const CreditHistory = () => {
         try {
             await dispatch(deleteCreditEntry({ customerId: id, date: paymentToDelete.date })).unwrap();
 
-            const { data } = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
+            const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/credits/get/${id}`);
             dispatch(fetchCredits({ ...data }));
 
             setPaymentToDelete(null);
@@ -77,7 +77,7 @@ const CreditHistory = () => {
             setCustomerDetails(prev => ({ ...prev, balance: prev.balance - cus.amount + selectedPayment.amount }))
             await dispatch(updateCreditEntry({ ...cus })).unwrap();
 
-            const data = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
+            const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/credits/get/${id}`);
 
             dispatch(fetchCredits({ ...data.data }));
             setSelectedPayment(null);
@@ -92,7 +92,7 @@ const CreditHistory = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await axios.get(`http://localhost:5000/api/credits/get/${id}`);
+                const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/credits/get/${id}`);
                 dispatch(fetchCredits({ ...data.data }));
             } catch (err) {
                 console.error("Error fetching credit history:", err);

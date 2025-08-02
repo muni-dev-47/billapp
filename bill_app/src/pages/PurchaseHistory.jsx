@@ -31,7 +31,7 @@ const PurchaseHistory = () => {
     useEffect(() => {
         const fetchBill = async () => {
             try {
-                const data = await axios.get(`http://localhost:5000/api/bill/get/${location.state.id}`)
+                const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/bill/get/${location.state.id}`)
                 dispatch(fatchBillItems({ ...data.data }))
             } catch (err) { }
         }
@@ -82,7 +82,7 @@ const PurchaseHistory = () => {
             await dispatch(softDeleteCustomerBill({ id, invoiceId: selectedBillId })).unwrap();
             const fetchBill = async () => {
                 try {
-                    const data = await axios.get(`http://localhost:5000/api/bill/get/${location.state.id}`)
+                    const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/bill/get/${location.state.id}`)
                     dispatch(fatchBillItems({ ...data.data }))
                 } catch (err) { }
             }

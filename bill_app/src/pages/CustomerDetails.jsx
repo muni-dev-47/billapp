@@ -36,7 +36,7 @@ const CustomerDetails = () => {
             try {
                 setLoading(true)
                 await dispatch(postCreditHistory({ ...paymentData })).unwrap();
-                const { data } = await axios.get("http://localhost:5000/api/customers/get");
+                const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
                 dispatch(fetchCustomers([...data]));
             } catch (err) {
                 alert(err.message || 'Error deleting customer');
@@ -55,7 +55,7 @@ const CustomerDetails = () => {
         try {
             setLoading(true)
             await dispatch(deleteCustomerById(selectedId)).unwrap();
-            const data = await axios.get("http://localhost:5000/api/customers/get");
+            const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
             dispatch(fetchCustomers([...data.data]))
         } catch (err) {
             alert(err.message || 'Error deleting customer');
@@ -74,7 +74,7 @@ const CustomerDetails = () => {
     useEffect(() => {
         const fetch = async () => {
             try {
-                const data = await axios.get("http://localhost:5000/api/customers/get");
+                const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/customers/get`);
                 dispatch(fetchCustomers([...data.data]))
             } catch (error) {
             }

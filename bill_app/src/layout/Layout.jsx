@@ -18,7 +18,7 @@ const Layout = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await axios.get(`http://localhost:5000/api/transactions/get`)
+                const data = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/transactions/get`)
                 dispatch(fetchTransactions([...data.data]))
             } catch (err) {
 
